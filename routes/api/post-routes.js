@@ -1,11 +1,13 @@
 const router = require('express').Router();
 const { route } = require('.');
-const {Post, User} = require('../../models');
+const {Post, User, Vote} = require('../../models');
+const { sequelize } = require('../../models/Post');
 
 // get all posts
 router.get('/', (req, res) => {
     Post.findAll({
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: ['id', 'post_url', 'title', 'created_at',
+    [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id= vote.post_id)'),'vote_count']],
       include: [
         {
           model: User,
@@ -26,7 +28,7 @@ router.get('/:id',(req,res)=>{
         where:{
             id:req.params.id
         },
-        attributes:['id','post_url','title','created_at'],
+        attributes:['id','post_url','title','created_at',   [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id= vote.post_id)'),'vote_count']],
         include:[
             {
                 model:User,
@@ -60,6 +62,15 @@ router.post('/',(req,res)=>{
         console.log(err);
         res.status(500).json(err)
     })
+})
+//put /api/posts/upvote this has be put before '/;id' otherwise express thinks this is a parameter.
+router.put('/upvote',(req,res)=>{
+    Vote.create({
+        user_id:req.body.user_id,
+        post_id: req.body.post_id
+    })
+    .then(dbPostData=>res.json(dbPostData))
+    .catch(err=>res.json(err))
 })
 
 // update a post's title
@@ -104,4 +115,6 @@ router.delete('/:id',(req,res)=>{
         res.status(500).json(err);
     })
 })
+
+
 module.exports= router;
