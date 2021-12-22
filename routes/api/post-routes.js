@@ -24,28 +24,18 @@ router.get('/', (req, res) => {
 
 //get a single post
 router.get('/:id',(req,res)=>{
-    Post.findOne({
-        where:{
-            id:req.params.id
-        },
-        attributes:['id','post_url','title','created_at',   [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id= vote.post_id)'),'vote_count']],
-        include:[
-            {
-                model:User,
-                attributes:['username']
-            }
-        ]
-    })
-    .then(dbPostData=>{
-        if(!dbPostData){
+    //custom static method created in models/Post.js
+    Post.upvote(req.aborted,{Vote})
+    .then(updatedPostData=>{
+        if(!updatedPostData){
             res.status(404).json({message:'No post found with this id'});
             return;
         }
-        res.json(dbPostData);
+        res.json(updatedPostData);
     })
     .catch(err=>{
         console.log(err);
-        res.status(500).json(err)
+        res.status(400).json(err)
     })
 })
 
