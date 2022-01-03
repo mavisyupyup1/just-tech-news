@@ -1,10 +1,21 @@
-<article class="post">
-    <div class="title">
-        <a href="{{post.post_url}}" target="_blank">{{post.title}}</a>
-        <span>{{post.post_url}}</span>
+{{>post-info post}}
+
+{{#if loggedIn}}
+<form class="comment-form">
+    <div>
+        <textarea name="comment-body"></textarea>
     </div>
-    <div class="meta">
-        {{post.vote_count}} point(s) by {{post.usr.username}} on {{post.created_at}} |
-        <a href="/post/{{post.comments.length}} comment(s)"></a>
+
+    <div>
+        <button type="submit">add comment</button>
+        <button type="button" class="upvote-btn">upvote</button>
     </div>
-</article>
+
+    {{>comments post.comments}}
+</form>
+{{/if}}
+
+{{#if loggedIn}}
+<script src="/javascript/comment.js"></script>
+<script src="/javascript/upvote.js"></script>
+{{/if}}
