@@ -8,7 +8,7 @@
         <a href="/post/{{post.comments.length}} comment(s)"></a>
     </div>
 </article>
-
+{{#if loggedIn}}
 <form class="comment-form">
     <div>
         <textarea name="comment-body"></textarea>
@@ -32,5 +32,9 @@
         {{/each}}
     </div>
 </form>
+{{/if}}
+
+{{#if loggedIn}}
 <script src="/javascript/comment.js"></script>
 <script src="/javascript/upvote.js"></script>
+{{/if}}
