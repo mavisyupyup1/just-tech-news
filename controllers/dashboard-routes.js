@@ -1,8 +1,9 @@
 const router = require('express').Router();
+const { response } = require('express');
 const sequelize = require("../config/connection");
 const {Post, User, Comment} = require('../models')
-
-router.get('/', (req,res)=>{
+const withAuth=require("../utils/auth")
+router.get('/', withAuth,(req,res)=>{
     Post.findAll({
         where:{
             //use the ID from the session
@@ -33,11 +34,23 @@ router.get('/', (req,res)=>{
     .then(dbPostData=>{
         //serialize the data before passing to template
         const posts = dbPostData.map(post=>post.get({plain:true}));
-        res.render('dashboard',{loggedIn: true})
+        res.render('dashboard',{posts,loggedIn: true})
     })
    .catch(err=>{
        console.log(err);
        res.status(500).json(err)
    })
+})
+
+router.get('/edit/:id',withAuth,(req,res)=>{
+    Post.findOne({
+        where:{
+            id:req.params.id
+        }
+    })
+    .then(dbPostData=>{
+        const post=dbPostData.get({plain:true})
+        res.render('edit-post',{post,loggedIn:true})
+    })
 })
 module.exports= router;
